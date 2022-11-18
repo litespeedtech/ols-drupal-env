@@ -5,7 +5,7 @@ PUSH=''
 CONFIG=''
 TAG=''
 BUILDER='litespeedtech'
-REPO='openlitespeed'
+REPO='openlitespeed-drush'
 EPACE='        '
 
 echow(){
@@ -17,9 +17,9 @@ echow(){
 help_message(){
     echo -e "\033[1mOPTIONS\033[0m" 
     echow '-O, --ols [VERSION] -P, --php [lsphpVERSION]'
-    echo "${EPACE}${EPACE}Example: bash build.sh --ols 1.7.11 --php lsphp80"
+    echo "${EPACE}${EPACE}Example: bash build.sh --ols 1.7.16 --php lsphp81"
     echow '--push'
-    echo "${EPACE}${EPACE}Example: build.sh --ols 1.7.11 --php lsphp80 --push, will push to the dockerhub"
+    echo "${EPACE}${EPACE}Example: build.sh --ols 1.7.16 --php lsphp81 --push, will push to the dockerhub"
     exit 0
 }
 
@@ -40,12 +40,13 @@ build_image(){
 
 test_image(){
     ID=$(docker run -d ${BUILDER}/${REPO}:${1}-${2})
-    docker exec -i ${ID} su -c 'mkdir -p /var/www/vhosts/localhost/html/ \
-    && echo "<?php phpinfo();" > /var/www/vhosts/localhost/html/index.php \
+    docker exec -i ${ID} su -c 'mkdir -p /var/www/vhosts/localhost/html/web/ \
+    && echo "<?php phpinfo();" > /var/www/vhosts/localhost/html/web/index.php \
     && /usr/local/lsws/bin/lswsctrl restart'
     sleep 5
     HTTP=$(docker exec -i ${ID} curl -s -o /dev/null -Ik -w "%{http_code}" http://localhost)
     HTTPS=$(docker exec -i ${ID} curl -s -o /dev/null -Ik -w "%{http_code}" https://localhost)
+    DRUSH_VERSION=$(docker exec -i ${ID} drush --version | grep -i Version)
     docker kill ${ID}
     if [[ "${HTTP}" != "200" || "${HTTPS}" != "200" ]]; then
         echo '[X] Test failed!'
@@ -53,7 +54,11 @@ test_image(){
         echo "https://localhost returned ${HTTPS}"
         exit 1
     else
-        echo '[O] Tests passed!' 
+        echo '[O] OpenLiteSpeed tests passed!' 
+    fi
+    echo "${DRUSH_VERSION}"
+    if [ ${?} != 0 ]; then 
+        echo '[X] Test failed!'; exit 1
     fi
 }
 

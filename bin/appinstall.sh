@@ -42,7 +42,7 @@ install_packages(){
 }
 
 app_download(){
-    install_packages ${1}
+    #install_packages ${1}
     docker compose exec litespeed su -c "appinstallctl.sh --app ${1} --domain ${2}"
     bash bin/webadmin.sh -r
     exit 0

@@ -1,0 +1,59 @@
+version: '3'
+services:
+  mysql:
+    image: mariadb:10.5.9
+    logging:
+      driver: none
+    command: --max_allowed_packet=256M
+    volumes:
+      - "./data/db:/var/lib/mysql:delegated"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_HOST: ${MYSQL_HOST}
+      DRUPAL_USERNAME: ${DRUPAL_USERNAME}
+      DRUPAL_EMAIL: ${DRUPAL_EMAIL}
+      DRUPAL_PASSWORD: ${DRUPAL_PASSWORD}
+      DRUPAL_SITE_NAME: ${DRUPAL_SITE_NAME}
+      DRUPAL_SITE_EMAIL: ${DRUPAL_SITE_EMAIL}
+    restart: always
+    networks:
+      - default
+  litespeed:
+    image: litespeedtech/openlitespeed:${OLS_VERSION}-${PHP_VERSION}
+    logging:
+      driver: none
+    env_file:
+      - .env
+    volumes:
+      - ./lsws/conf:/usr/local/lsws/conf
+      - ./lsws/admin-conf:/usr/local/lsws/admin/conf
+      - ./bin/container:/usr/local/bin
+      - ./sites:/var/www/vhosts/
+      - ./acme:/root/.acme.sh/
+      - ./logs:/usr/local/lsws/logs/
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+      - 7080:7080
+    restart: always
+    environment:
+      TZ: ${TimeZone}
+    networks:
+      - default
+  phpmyadmin:
+    image: bitnami/phpmyadmin:5.2.0-debian-11-r43
+    ports:
+      - 8080:8080
+      - 8443:8443
+    environment:
+        DATABASE_HOST: mysql
+    restart: always
+    networks:
+      - default
+networks:
+  default:
+    driver: bridge
