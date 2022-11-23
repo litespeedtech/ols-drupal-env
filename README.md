@@ -1,5 +1,5 @@
 # OpenLiteSpeed Drupal Docker Container
-[![Build Status](https://github.com/litespeedtech/ols-docker-env/workflows/docker-build/badge.svg)](https://github.com/litespeedtech/ols-docker-env/actions/)
+[![Build Status](https://github.com/litespeedtech/ols-drupal-env/workflows/docker-build/badge.svg)](https://github.com/litespeedtech/ols-docker-env/actions/)
 [![docker pulls](https://img.shields.io/docker/pulls/litespeedtech/openlitespeed?style=flat&color=blue)](https://hub.docker.com/r/litespeedtech/openlitespeed)
 [<img src="https://img.shields.io/badge/slack-LiteSpeed-blue.svg?logo=slack">](litespeedtech.com/slack) 
 [<img src="https://img.shields.io/twitter/follow/litespeedtech.svg?label=Follow&style=social">](https://twitter.com/litespeedtech)
@@ -17,7 +17,7 @@ Feel free to check [Docker hub Tag page](https://hub.docker.com/repository/docke
 ## Installation
 Clone this repository or copy the files from this repository into a new folder:
 ```
-git clone https://github.com/litespeedtech/ols-docker-env.git
+git clone https://github.com/litespeedtech/ols-drupal-env.git
 ```
 Open a terminal, `cd` to the folder in which `docker compose.yml` is saved, and run:
 ```
