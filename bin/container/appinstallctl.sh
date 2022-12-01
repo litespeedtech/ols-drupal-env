@@ -93,8 +93,8 @@ check_sql_native(){
 app_drupal_dl(){
     echo 'Download Drupal CMS'
     if [ ! -d "${VH_DOC_ROOT}/sites" ]; then
-        composer create-project --no-interaction drupal/recommended-project ${VH_DOC_ROOT}/ >/dev/null 2>&1
-        cd ${VH_DOC_ROOT}/ && composer require drush/drush -q
+        /usr/bin/composer create-project --no-interaction drupal/recommended-project ${VH_DOC_ROOT}/ >/dev/null 2>&1
+        cd ${VH_DOC_ROOT}/ && /usr/bin/composer require drush/drush -q
     else
         echo 'Drupal already exist, abort!'
         exit 1
@@ -119,7 +119,7 @@ install_drupal(){
 	export COMPOSER_ALLOW_SUPERUSER=1
     cd ${VH_DOC_ROOT}
 
-	drush -y site-install standard \
+	/usr/bin/drush -y site-install standard \
 	    "--db-url=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}/${MYSQL_DATABASE}" \
 		"--account-name=${DRUPAL_USERNAME}" \
 		"--account-pass=${DRUPAL_PASSWORD}" \
@@ -130,11 +130,11 @@ install_drupal(){
 
 install_lscache(){
 	echo 'Install LSCache'
-	drush -y config-set system.performance css.preprocess 0 -q
-	drush -y config-set system.performance js.preprocess 0 -q
-	drush cache-rebuild -q
-	drush pm:enable lite_speed_cache
-	chmod 777 /var/www/html/web/sites/default/files
+	/usr/bin/drush -y config-set system.performance css.preprocess 0 -q
+	/usr/bin/drush -y config-set system.performance js.preprocess 0 -q
+	/usr/bin/drush cache-rebuild -q
+	/usr/bin/drush pm:enable lite_speed_cache
+	chmod 777 ${VH_DOC_ROOT}/web/sites/default/files
 }
 
 change_owner(){
