@@ -1,5 +1,5 @@
 # OpenLiteSpeed Drupal Docker Container
-[![Build Status](https://github.com/litespeedtech/ols-drupal-env/workflows/docker-build/badge.svg)](https://github.com/litespeedtech/ols-docker-env/actions/)
+[![Build Status](https://github.com/litespeedtech/ols-drupal-env/workflows/docker-build/badge.svg)](https://github.com/litespeedtech/ols-drupal-env/actions/new)
 [![docker pulls](https://img.shields.io/docker/pulls/litespeedtech/openlitespeed?style=flat&color=blue)](https://hub.docker.com/r/litespeedtech/openlitespeed)
 [<img src="https://img.shields.io/badge/slack-LiteSpeed-blue.svg?logo=slack">](litespeedtech.com/slack) 
 [<img src="https://img.shields.io/twitter/follow/litespeedtech.svg?label=Follow&style=social">](https://twitter.com/litespeedtech)
@@ -12,7 +12,7 @@ Install a lightweight Drupal container with OpenLiteSpeed Edge or Stable version
 
 ## Configuration
 Edit the `.env` file to update the demo site domain, default MySQL user, and password.
-Feel free to check [Docker hub Tag page](https://hub.docker.com/repository/docker/litespeedtech/openlitespeed/tags) if you want to update default openlitespeed and php versions. 
+Feel free to check [Docker hub Tag page](https://hub.docker.com/repository/docker/litespeedtech/openlitespeed-drush/tags) if you want to update default openlitespeed and php versions. 
 
 ## Installation
 Clone this repository or copy the files from this repository into a new folder:
@@ -24,7 +24,7 @@ Open a terminal, `cd` to the folder in which `docker compose.yml` is saved, and 
 docker compose up
 ```
 
-Note: If you wish to run a single web server container, please see the [usage method here](https://github.com/litespeedtech/ols-dockerfiles#usage).
+Note: If you wish to run a single web server container, please see the [usage method here](https://github.com/litespeedtech/ols-drupal-env/blob/main/ols-dockerfiles/README.md#usage).
 
 ## Components
 The docker image installs the following packages on your system:
@@ -57,6 +57,9 @@ Cloned project
 ├── lsws
 │   ├── admin-conf
 │   └── conf
+├── ols-dockerfiles
+│   ├── template
+|   └── README.md
 ├── sites
 │   └── localhost
 ├── LICENSE
@@ -125,7 +128,7 @@ Use this command to specify your own names, substituting `user_name`, `my_passwo
 bash bin/database.sh [-D, --domain] example.com [-U, --user] USER_NAME [-P, --password] MY_PASS [-DB, --database] DATABASE_NAME
 ```
 ### Installing a Drupal Site
-To preconfigure the `wp-config` file, run the `database.sh` script for your domain, before you use the following command to install Drupal:
+Run the `database.sh` script for your domain, before you use the following command to install Drupal:
 ```
 ./bin/appinstall.sh [-A, --app] drupal [-D, --domain] example.com
 ```
@@ -176,13 +179,13 @@ If you want to customize the image by adding some packages, e.g. `lsphp80-pspell
 1. We can create a `custom` folder and a `custom/Dockerfile` file under the main project. 
 2. Add the following example code to `Dockerfile` under the custom folder
 ```
-FROM litespeedtech/openlitespeed:latest
+FROM litespeedtech/openlitespeed-drush:latest
 RUN apt-get update && apt-get install lsphp80-pspell -y
 ```
-3. Add `build: ./custom` line under the "image: litespeedtech" of docker-composefile. So it will looks like this 
+3. Add `build: ./custom` line under the "image: litespeedtech" of docker-compose file. So it will looks like this 
 ```
   litespeed:
-    image: litespeedtech/openlitespeed:${OLS_VERSION}-${PHP_VERSION}
+    image: litespeedtech/openlitespeed-drush:${OLS_VERSION}-${PHP_VERSION}
     build: ./custom
 ```
 4. Build and start it with command:
@@ -194,6 +197,6 @@ docker compose up --build
 If you still have a question after using OpenLiteSpeed Docker, you have a few options.
 * Join [the GoLiteSpeed Slack community](https://litespeedtech.com/slack) for real-time discussion
 * Post to [the OpenLiteSpeed Forums](https://forum.openlitespeed.org/) for community support
-* Reporting any issue on [Github ols-docker-env](https://github.com/litespeedtech/ols-docker-env/issues) project
+* Reporting any issue on [Github ols-drupal-env](https://github.com/litespeedtech/ols-drupal-env/issues) project
 
 **Pull requests are always welcome** 

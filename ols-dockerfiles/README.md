@@ -10,7 +10,7 @@ Install a lightweight OpenLiteSpeed container using either the Edge or Stable ve
 *  [Install Docker](https://www.docker.com/)
 
 ## Build Components
-The system will regulary build both OpenLiteSpeed Edge and Latest stable versions, along with the last two PHP versions.
+The system will regulary build OpenLiteSpeed Latest stable versions, along with the last two PHP versions.
 
 |Component|Version|
 | :-------------: | :-------------: |
@@ -76,6 +76,6 @@ bash build.sh -O 1.7.16 -P lsphp81
 If you still have a question after using OpenLiteSpeed Docker, you have a few options.
 * Join [the GoLiteSpeed Slack community](https://litespeedtech.com/slack) for real-time discussion
 * Post to [the OpenLiteSpeed Forums](https://forum.openlitespeed.org/) for community support
-* Reporting any issue on [Github ols-dockerfiles](https://github.com/litespeedtech/ols-dockerfiles/issues) project
+* Reporting any issue on [Github ols-drupal-env](https://github.com/litespeedtech/ols-drupal-env/issues) project
 
 **Pull requests are always welcome** 
