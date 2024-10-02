@@ -118,23 +118,25 @@ install_drupal(){
 	echo 'Install Drupal'
 	export COMPOSER_ALLOW_SUPERUSER=1
     cd ${VH_DOC_ROOT}
-
-	/usr/bin/drush -y site-install standard \
+	#/usr/bin/drush -y site-install standard \
+	    ./vendor/bin/drush -y site-install standard \
 	    "--db-url=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}/${MYSQL_DATABASE}" \
 		"--account-name=${DRUPAL_USERNAME}" \
 		"--account-pass=${DRUPAL_PASSWORD}" \
 		"--account-mail=${DRUPAL_EMAIL}" \
 		"--site-name=${DRUPAL_SITE_NAME}" \
 		"--site-mail=${DRUPAL_SITE_EMAIL}"
+	echo 'Finish Drupal installation'	
 }
 
 install_lscache(){
 	echo 'Install LSCache'
-	/usr/bin/drush -y config-set system.performance css.preprocess 0 -q
-	/usr/bin/drush -y config-set system.performance js.preprocess 0 -q
-	/usr/bin/drush cache-rebuild -q
-	/usr/bin/drush pm:enable lite_speed_cache
+	./vendor/bin/drush -y config-set system.performance css.preprocess 0 -q
+	./vendor/bin/drush -y config-set system.performance js.preprocess 0 -q
+	./vendor/bin/drush cache-rebuild -q
+	./vendor/bin/drush pm:enable lite_speed_cache
 	chmod 777 ${VH_DOC_ROOT}/web/sites/default/files
+	echo 'Finish LSCache installation'
 }
 
 change_owner(){

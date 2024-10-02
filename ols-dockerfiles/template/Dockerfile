@@ -2,11 +2,11 @@ FROM ubuntu:24.04
 
 ARG OLS_VERSION
 ARG PHP_VERSION
-ENV DRUSHVER=11
+ENV DRUSHVER=13
 
 RUN apt-get update && apt-get install wget curl cron tzdata unzip apt-utils -y
 
-RUN wget https://openlitespeed.org/preuse/openlitespeed-$OLS_VERSION.tgz && \
+RUN wget https://openlitespeed.org/packages/openlitespeed-$OLS_VERSION.tgz && \
     tar xzf openlitespeed-$OLS_VERSION.tgz && cd openlitespeed && ./install.sh && \
     echo 'cloud-docker' > /usr/local/lsws/PLAT && rm -rf /openlitespeed && rm /openlitespeed-$OLS_VERSION.tgz
 
