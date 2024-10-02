@@ -11,14 +11,14 @@ on:
       - main
 env:
   FOLDER: ols-dockerfiles/template
-  OLS_VERSION: 1.7.16
+  OLS_VERSION: 1.8.2
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix: 
-        PHP_VERSION: [lsphp74, lsphp81]
+        PHP_VERSION: [lsphp81,lsphp82,lsphp83]
         TAG: [latest,'']
     steps:
       - uses: actions/checkout@v2

@@ -14,7 +14,7 @@ The system will regulary build OpenLiteSpeed Latest stable versions, along with 
 
 |Component|Version|
 | :-------------: | :-------------: |
-|Linux|Ubuntu 22.04|
+|Linux|Ubuntu 24.04|
 |OpenLiteSpeed|[Latest stable version](https://openlitespeed.org/release-log/version-1-7-x)|
 |PHP|[Latest stable version](http://rpms.litespeedtech.com/debian/)|
 |Composer|[Latest stable version](https://getcomposer.org/)|
@@ -28,7 +28,7 @@ docker pull litespeedtech/openlitespeed-drush:latest
 ```
 or specify the OpenLiteSpeed version with lsphp version
 ```
-docker pull litespeedtech/openlitespeed-drush:1.7.16-lsphp81
+docker pull litespeedtech/openlitespeed-drush:1.8.2-lsphp83
 ```
 ### Start a Container
 ```
