@@ -34,7 +34,7 @@ ADD httpd_config.xml /usr/local/lsws/conf/httpd_config.xml
 ADD htpasswd /usr/local/lsws/admin/conf/htpasswd
 
 RUN /usr/local/lsws/bin/setup_docker.sh && rm /usr/local/lsws/bin/setup_docker.sh
-RUN chown 999:999 /usr/local/lsws/conf -R
+RUN chown 994:994 /usr/local/lsws/conf -R
 RUN cp -RP /usr/local/lsws/conf/ /usr/local/lsws/.conf/
 RUN cp -RP /usr/local/lsws/admin/conf /usr/local/lsws/admin/.conf/
 RUN ["/bin/bash", "-c", "if [[ $PHP_VERSION == lsphp8* ]]; then ln -sf /usr/local/lsws/$PHP_VERSION/bin/lsphp /usr/local/lsws/fcgi-bin/lsphp8; fi"]

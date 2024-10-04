@@ -15,7 +15,7 @@ The system will regulary build OpenLiteSpeed Latest stable versions, along with 
 |Component|Version|
 | :-------------: | :-------------: |
 |Linux|Ubuntu 24.04|
-|OpenLiteSpeed|[Latest stable version](https://openlitespeed.org/release-log/version-1-7-x)|
+|OpenLiteSpeed|[Latest stable version](https://openlitespeed.org/release-log/version-1-8-x)|
 |PHP|[Latest stable version](http://rpms.litespeedtech.com/debian/)|
 |Composer|[Latest stable version](https://getcomposer.org/)|
 |Drush|[Latest stable version](https://www.drush.org/latest/)|
