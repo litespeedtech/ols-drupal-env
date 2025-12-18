@@ -28,7 +28,7 @@ docker pull litespeedtech/openlitespeed-drush:latest
 ```
 or specify the OpenLiteSpeed version with lsphp version
 ```
-docker pull litespeedtech/openlitespeed-drush:1.8.2-lsphp83
+docker pull litespeedtech/openlitespeed-drush:1.8.4-lsphp84
 ```
 ### Start a Container
 ```

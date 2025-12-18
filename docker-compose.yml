@@ -44,12 +44,13 @@ services:
     networks:
       - default
   phpmyadmin:
-    image: bitnami/phpmyadmin:5.2.0-debian-11-r43
+    image: phpmyadmin/phpmyadmin:${PHPMYADMIN_VERSION}
+    env_file:
+      - .env
     ports:
-      - 8080:8080
-      - 8443:8443
+      - 8080:80
     environment:
-        DATABASE_HOST: mysql
+      PMA_HOST: mysql
     restart: always
     networks:
       - default
