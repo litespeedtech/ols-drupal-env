@@ -8,7 +8,7 @@ ARG TARGETPLATFORM
 ENV LS_FD='/usr/local/lsws'
 ENV PHPINI_PATH="$LS_FD/$PHP_VERSION/etc/php/*/litespeed/php.ini"
 
-RUN apt-get update && apt-get install wget curl cron tzdata unzip apt-utils -y
+RUN apt-get update && apt-get install wget curl cron tzdata unzip apt-utils git -y
 
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         wget https://openlitespeed.org/packages/openlitespeed-$OLS_VERSION-x86_64-linux.tgz && \
