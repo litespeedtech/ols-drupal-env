@@ -33,7 +33,7 @@ The docker image installs the following packages on your system:
 | :-------------: | :-------------: |
 |Linux|Ubuntu 24.04|
 |OpenLiteSpeed|[Latest version](https://openlitespeed.org/downloads/)|
-|MariaDB|[Stable version: 10.5](https://hub.docker.com/_/mariadb)|
+|MariaDB|[Stable version: 11.4](https://hub.docker.com/_/mariadb)|
 |PHP|[Latest version](http://rpms.litespeedtech.com/debian/)|
 |LiteSpeed Cache|[Latest from litespeedtech](https://github.com/litespeedtech/lscache-drupal)|
 |ACME|[Latest from ACME official](https://github.com/acmesh-official/get.acme.sh)|

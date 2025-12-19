@@ -69,7 +69,7 @@ For example,
 ```
 git clone https://github.com/litespeedtech/ols-drupal-env.git
 cd ols-drupal-env/ols-dockerfiles/template
-bash build.sh -O 1.7.16 -P lsphp81
+bash build.sh -O 1.8.4 -P lsphp81
 ```
 
 ## Support & Feedback
