@@ -107,9 +107,10 @@ check_sql_native(){
 app_drupal_dl(){
     echo 'Download Drupal CMS'
     if [ ! -d "${VH_DOC_ROOT}/sites" ]; then
-	    if [ -d "${DEFAULT_VH_ROOT}/${1}/html/web" ]; then
-	        rm -rf "${DEFAULT_VH_ROOT}/${1}/html/web"
-		fi	
+	    if [ -d "${VH_DOC_ROOT}/web" ]; then
+		    echo "The script clears the ${VH_DOC_ROOT}/ directory before starting the installation."
+	        rm -rf "${VH_DOC_ROOT}/*"
+		fi
         /usr/bin/composer create-project --no-interaction drupal/recommended-project ${VH_DOC_ROOT}/ >/dev/null 2>&1
         cd ${VH_DOC_ROOT}/ && /usr/bin/composer require drush/drush -q
     else
