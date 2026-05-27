@@ -11,7 +11,7 @@ on:
       - main
 env:
   FOLDER: ols-dockerfiles/template
-  OLS_VERSION: 1.8.4
+  OLS_VERSION: 1.8.5
 
 jobs:
   test:
@@ -21,13 +21,13 @@ jobs:
         PHP_VERSION: [lsphp83,lsphp84,lsphp85]
         TAG: [latest,'']
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3      
+        uses: docker/setup-buildx-action@v3    
       - name: Docker build and push
         if: ${{ (github.ref == 'refs/heads/main' && github.event_name == 'push') || (github.event_name == 'workflow_dispatch') }}
         run: |

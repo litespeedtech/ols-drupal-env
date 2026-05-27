@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 ARG OLS_VERSION
 ARG PHP_VERSION
@@ -8,32 +8,48 @@ ARG TARGETPLATFORM
 ENV LS_FD='/usr/local/lsws'
 ENV PHPINI_PATH="$LS_FD/$PHP_VERSION/etc/php/*/litespeed/php.ini"
 
-RUN apt-get update && apt-get install wget curl cron tzdata unzip apt-utils git -y
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        wget curl cron tzdata ca-certificates unzip apt-utils git \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-        wget https://openlitespeed.org/packages/openlitespeed-$OLS_VERSION-x86_64-linux.tgz && \
-        tar xzf openlitespeed-$OLS_VERSION-x86_64-linux.tgz && cd openlitespeed && ./install.sh && \
-        echo 'cloud-docker' > $LS_FD/PLAT && rm -rf /openlitespeed && rm /openlitespeed-$OLS_VERSION-x86_64-linux.tgz; \
+RUN set -eux; \
+    if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        OLS_ARCH='x86_64'; \
     elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
-        wget https://openlitespeed.org/packages/openlitespeed-$OLS_VERSION-aarch64-linux.tgz && \
-        tar xzf openlitespeed-$OLS_VERSION-aarch64-linux.tgz && cd openlitespeed && ./install.sh && \
-        echo 'cloud-docker' > $LS_FD/PLAT && rm -rf /openlitespeed && rm /openlitespeed-$OLS_VERSION-aarch64-linux.tgz; \
+        OLS_ARCH='aarch64'; \
     else \
-        echo "$TARGETPLATFORM is not supported"; \
-    fi
+        echo "$TARGETPLATFORM is not supported" >&2; exit 1; \
+    fi; \
+    OLS_TGZ="openlitespeed-${OLS_VERSION}-${OLS_ARCH}-linux.tgz"; \
+    wget --tries=3 --timeout=60 -q "https://openlitespeed.org/packages/${OLS_TGZ}"; \
+    tar xzf "${OLS_TGZ}"; \
+    cd openlitespeed && ./install.sh; \
+    echo 'cloud-docker' > "$LS_FD/PLAT"; \
+    cd / && rm -rf /openlitespeed "/${OLS_TGZ}"
 
-RUN wget -O - https://repo.litespeed.sh | bash
+RUN set -eux; \
+    wget --tries=3 --timeout=60 -qO /tmp/repo.litespeed.sh https://repo.litespeed.sh; \
+    bash /tmp/repo.litespeed.sh; \
+    rm -f /tmp/repo.litespeed.sh
 
-RUN apt-get update && apt-get install mysql-client $PHP_VERSION $PHP_VERSION-common $PHP_VERSION-mysql \
-    $PHP_VERSION-curl $PHP_VERSION-imagick $PHP_VERSION-redis $PHP_VERSION-memcached $PHP_VERSION-intl -y
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        mysql-client \
+        $PHP_VERSION $PHP_VERSION-common $PHP_VERSION-mysql \
+        $PHP_VERSION-curl $PHP_VERSION-imagick $PHP_VERSION-redis \
+        $PHP_VERSION-memcached $PHP_VERSION-intl; \
+    case "$PHP_VERSION" in \
+        lsphp81|lsphp82|lsphp83|lsphp84) \
+            apt-get install -y --no-install-recommends "${PHP_VERSION}-opcache" ;; \
+        lsphp7*) \
+            apt-get install -y --no-install-recommends "${PHP_VERSION}-json" ;; \
+    esac; \
+    rm -rf /var/lib/apt/lists/*
 
-RUN ["/bin/bash", "-c", "case \"$PHP_VERSION\" in lsphp81|lsphp82|lsphp83|lsphp84) apt-get install ${PHP_VERSION}-opcache -y ;; esac"]
-
-RUN ["/bin/bash", "-c", "if [[ $PHP_VERSION == lsphp7* ]]; then apt-get install $PHP_VERSION-json -y; fi"]
-
-RUN wget -O /usr/local/lsws/admin/misc/lsup.sh \
+RUN wget --tries=3 --timeout=60 -qO $LS_FD/admin/misc/lsup.sh \
     https://raw.githubusercontent.com/litespeedtech/openlitespeed/master/dist/admin/misc/lsup.sh && \
-    chmod +x /usr/local/lsws/admin/misc/lsup.sh
+    chmod +x $LS_FD/admin/misc/lsup.sh
 
 RUN sed -i 's/memory_limit = 128M/memory_limit = 1024M/g' $PHPINI_PATH && \
     sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 1024M/g' $PHPINI_PATH && \
@@ -42,7 +58,10 @@ RUN sed -i 's/memory_limit = 128M/memory_limit = 1024M/g' $PHPINI_PATH && \
 
 RUN ln -s /usr/local/lsws/$PHP_VERSION/bin/php /usr/bin/php
 
-RUN wget -O -  https://get.acme.sh | sh
+RUN set -eux; \
+    wget --tries=3 --timeout=60 -qO /tmp/acme.sh https://get.acme.sh; \
+    sh /tmp/acme.sh; \
+    rm -f /tmp/acme.sh
 
 EXPOSE 7080
 ENV PATH="/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin"
@@ -52,10 +71,11 @@ ADD setup_docker.sh /usr/local/lsws/bin/setup_docker.sh
 ADD httpd_config.xml /usr/local/lsws/conf/httpd_config.xml
 ADD htpasswd /usr/local/lsws/admin/conf/htpasswd
 
-RUN /usr/local/lsws/bin/setup_docker.sh && rm /usr/local/lsws/bin/setup_docker.sh
-RUN chown 994:994 /usr/local/lsws/conf -R
-RUN cp -RP /usr/local/lsws/conf/ /usr/local/lsws/.conf/
-RUN cp -RP /usr/local/lsws/admin/conf /usr/local/lsws/admin/.conf/
+RUN $LS_FD/bin/setup_docker.sh && rm $LS_FD/bin/setup_docker.sh
+RUN chown -R lsadm:lsadm $LS_FD/conf $LS_FD/admin/conf
+RUN chmod -R u=rwX,go= $LS_FD/admin/conf
+RUN cp -RP $LS_FD/conf/ $LS_FD/.conf/
+RUN cp -RP $LS_FD/admin/conf $LS_FD/admin/.conf/
 RUN ["/bin/bash", "-c", "if [[ $PHP_VERSION == lsphp8* ]]; then ln -sf /usr/local/lsws/$PHP_VERSION/bin/lsphp /usr/local/lsws/fcgi-bin/lsphp8; fi"]
 RUN ["/bin/bash", "-c", "if [[ $PHP_VERSION == lsphp8* ]]; then ln -sf /usr/local/lsws/fcgi-bin/lsphp8 /usr/local/lsws/fcgi-bin/lsphp; fi"]
 RUN ["/bin/bash", "-c", "if [[ $PHP_VERSION == lsphp7* ]]; then ln -sf /usr/local/lsws/$PHP_VERSION/bin/lsphp /usr/local/lsws/fcgi-bin/lsphp7; fi"]

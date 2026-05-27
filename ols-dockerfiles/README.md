@@ -4,7 +4,7 @@
 [<img src="https://img.shields.io/badge/slack-LiteSpeed-blue.svg?logo=slack">](litespeedtech.com/slack) 
 [<img src="https://img.shields.io/twitter/follow/litespeedtech.svg?label=Follow&style=social">](https://twitter.com/litespeedtech)
 
-Install a lightweight OpenLiteSpeed container using either the Edge or Stable version in Ubuntu 22.04 Linux.
+Install a lightweight OpenLiteSpeed container using either the Edge or Stable version in Ubuntu 26.04 Linux.
 
 ### Prerequisites
 *  [Install Docker](https://www.docker.com/)
@@ -14,7 +14,7 @@ The system will regulary build OpenLiteSpeed Latest stable versions, along with 
 
 |Component|Version|
 | :-------------: | :-------------: |
-|Linux|Ubuntu 24.04|
+|Linux|Ubuntu 26.04|
 |OpenLiteSpeed|[Latest stable version](https://openlitespeed.org/release-log/version-1-8-x)|
 |PHP|[Latest stable version](http://rpms.litespeedtech.com/debian/)|
 |Composer|[Latest stable version](https://getcomposer.org/)|
@@ -28,7 +28,7 @@ docker pull litespeedtech/openlitespeed-drush:latest
 ```
 or specify the OpenLiteSpeed version with lsphp version
 ```
-docker pull litespeedtech/openlitespeed-drush:1.8.4-lsphp84
+docker pull litespeedtech/openlitespeed-drush:1.8.5-lsphp84
 ```
 ### Start a Container
 ```
@@ -69,7 +69,7 @@ For example,
 ```
 git clone https://github.com/litespeedtech/ols-drupal-env.git
 cd ols-drupal-env/ols-dockerfiles/template
-bash build.sh -O 1.8.4 -P lsphp81
+bash build.sh -O 1.8.5 -P lsphp83
 ```
 
 ## Support & Feedback

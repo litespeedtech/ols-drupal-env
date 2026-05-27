@@ -8,6 +8,7 @@ SQL_PASS=''
 ANY="'%'"
 SET_OK=0
 EPACE='        '
+METHOD=0
 
 echow(){
     FLAG=${1}
@@ -19,10 +20,13 @@ help_message(){
     echo -e "\033[1mOPTIONS\033[0m"
     echow '-D, --domain [DOMAIN_NAME]'
     echo "${EPACE}${EPACE}Example: database.sh -D example.com"
-    echo "${EPACE}${EPACE}Will auto generate Database/username/password for the domain"
+    echo "${EPACE}${EPACE}Will auto-generate Database/username/password for the domain"
     echow '-D, --domain [DOMAIN_NAME] -U, --user [xxx] -P, --password [xxx] -DB, --database [xxx]'
     echo "${EPACE}${EPACE}Example: database.sh -D example.com -U USERNAME -P PASSWORD -DB DATABASENAME"
     echo "${EPACE}${EPACE}Will create Database/username/password by given"
+    echow '-R, --delete -DB, --database [xxx] -U, --user [xxx]'
+    echo "${EPACE}${EPACE}Example: database.sh -r -DB DATABASENAME -U USERNAME"
+    echo "${EPACE}${EPACE}Will delete the database (require) and username (optional) by given"
     echow '-H, --help'
     echo "${EPACE}${EPACE}Display help and exit."
     exit 0    
@@ -35,10 +39,38 @@ check_input(){
     fi
 }
 
+validate_identifier(){
+    if ! echo "${1}" | grep -Eq '^[A-Za-z0-9_]{1,63}$'; then
+        echo "[X] Invalid identifier '${1}'. Allowed: [A-Za-z0-9_], max 63 chars."
+        exit 1
+    fi
+}
+
+validate_password(){
+    if echo "${1}" | LC_ALL=C grep -q "['\"\\\\\$\`]"; then
+        echo "[X] Password contains forbidden characters: ' \" \\ \$ \`"
+        exit 1
+    fi
+    if [ "${#1}" -lt 8 ]; then
+        echo "[X] Password too short (minimum 8 characters)."
+        exit 1
+    fi
+}
+
+validate_domain(){
+    if ! echo "${1}" | grep -Eq '^(localhost|([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,})$'; then
+        echo "[X] Invalid domain name: '${1}'. Abort!"
+        exit 1
+    fi
+}
+
 specify_name(){
     check_input ${SQL_USER}
     check_input ${SQL_PASS}
     check_input ${SQL_DB}
+    validate_identifier "${SQL_USER}"
+    validate_identifier "${SQL_DB}"
+    validate_password "$(echo "${SQL_PASS}" | tr -d "'")"
 }
 
 auto_name(){
@@ -79,11 +111,11 @@ EOT
 }
 
 check_db_access(){
-    docker compose exec -T mysql su -c "mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e 'status'" >/dev/null 2>&1
+    docker compose exec -T mysql su -c "mariadb -uroot --password=${MYSQL_ROOT_PASSWORD} -e 'status'" >/dev/null 2>&1
     if [ ${?} != 0 ]; then
         echo '[X] DB access failed, please check!'
         exit 1
-    fi    
+    fi
 }
 
 check_db_exist(){
@@ -94,19 +126,48 @@ check_db_exist(){
     fi      
 }
 
-db_setup(){  
-    docker compose exec -T mysql su -c 'mysql -uroot -p${MYSQL_ROOT_PASSWORD} \
+check_db_not_exist(){
+    docker compose exec -T mysql su -c "test -e /var/lib/mysql/${1}"
+    if [ ${?} != 0 ]; then
+        echo "Database ${1} doesn't exist, skip DB deletion!"
+        exit 0
+    fi
+}
+
+db_setup(){
+    docker compose exec -T mysql su -c 'mariadb -uroot --password=${MYSQL_ROOT_PASSWORD} \
     -e "CREATE DATABASE '${SQL_DB}';" \
     -e "GRANT ALL PRIVILEGES ON '${SQL_DB}'.* TO '${SQL_USER}'@'${ANY}' IDENTIFIED BY '${SQL_PASS}';" \
     -e "FLUSH PRIVILEGES;"'
     SET_OK=${?}
 }
 
+db_delete(){
+    if [ "${SQL_DB}" == '' ]; then
+        echo "Database parameter is required!"
+        exit 0
+    fi
+    validate_identifier "${SQL_DB}"
+    if [ "${SQL_USER}" == '' ]; then
+        SQL_USER="${SQL_DB}"
+    fi
+    validate_identifier "${SQL_USER}"
+    check_db_not_exist ${SQL_DB}
+    docker compose exec -T mysql su -c 'mariadb -uroot --password=${MYSQL_ROOT_PASSWORD} \
+        -e "DROP DATABASE IF EXISTS '${SQL_DB}';" \
+        -e "DROP USER IF EXISTS '${SQL_USER}'@'${ANY}';" \
+        -e "FLUSH PRIVILEGES;"'
+    echo "Database ${SQL_DB} and User ${SQL_USER} are deleted!"
+}
+
 auto_setup_main(){
     check_input ${DOMAIN}
+    validate_domain "${DOMAIN}"
     gen_pass
     trans_name ${DOMAIN}
     auto_name
+    validate_identifier "${SQL_DB}"
+    validate_identifier "${SQL_USER}"
     check_db_exist ${SQL_DB}
     check_db_access
     db_setup
@@ -124,6 +185,10 @@ specify_setup_main(){
 }
 
 main(){
+    if [ ${METHOD} == 1 ]; then
+        db_delete
+        exit 0
+    fi
     if [ "${SQL_USER}" != '' ] && [ "${SQL_PASS}" != '' ] && [ "${SQL_DB}" != '' ]; then
         specify_setup_main
     else
@@ -148,7 +213,10 @@ while [ ! -z "${1}" ]; do
             ;;            
         -db | -DB | -database| --database) shift
             SQL_DB="${1}"
-            ;;            
+            ;;
+        -[rR] | -del | --del | --delete)
+            METHOD=1
+            ;;
         *) 
             help_message
             ;;              

@@ -26,6 +26,13 @@ check_input(){
     fi
 }
 
+validate_domain(){
+    if ! echo "${1}" | grep -Eq '^(localhost|([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,})$'; then
+        echo "[X] Invalid domain name: '${1}'. Abort!"
+        exit 1
+    fi
+}
+
 install_packages(){
     if [ "${1}" = 'wordpress' ]; then
         docker compose exec -T litespeed /bin/bash -c "pkginstallctl.sh --package ed"
@@ -42,7 +49,7 @@ install_packages(){
 }
 
 app_download(){
-    #install_packages ${1}
+    validate_domain "${2}"
     docker compose exec litespeed su -c "appinstallctl.sh --app ${1} --domain ${2}"
     bash bin/webadmin.sh -r
     exit 0

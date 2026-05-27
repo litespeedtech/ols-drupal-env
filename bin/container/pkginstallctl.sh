@@ -1,7 +1,7 @@
 #!/bin/bash
 MA_COMPOSER='/usr/local/bin/composer'
 EPACE='        '
-DRUSHVER=11
+DRUSHVER=13
 
 echoY() {
     echo -e "\033[38;5;148m${1}\033[39m"

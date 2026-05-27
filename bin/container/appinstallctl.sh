@@ -33,6 +33,20 @@ check_input(){
     fi
 }
 
+validate_domain(){
+    if ! echo "${1}" | grep -Eq '^(localhost|([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,})$'; then
+        echo "[X] Invalid domain name: '${1}'. Abort!"
+        exit 1
+    fi
+}
+
+validate_vhname(){
+    if ! echo "${1}" | grep -Eq '^[A-Za-z0-9._-]+$'; then
+        echo "[X] Invalid vhname: '${1}'. Abort!"
+        exit 1
+    fi
+}
+
 linechange(){
     LINENUM=$(grep -n "${1}" ${2} | cut -d: -f 1)
     if [ -n "${LINENUM}" ] && [ "${LINENUM}" -eq "${LINENUM}" ] 2>/dev/null; then
@@ -77,7 +91,7 @@ set_vh_docroot(){
 check_sql_native(){
 	local COUNTER=0
 	local LIMIT_NUM=100
-	until [ "$(curl -v mysql:3306 2>&1 | grep -i 'native\|Connected')" ]; do
+	until [ "$(curl -v mysql:3306 2>&1 | grep -i 'native\|Connected\|Established')" ]; do
 		echo "Counter: ${COUNTER}/${LIMIT_NUM}"
 		COUNTER=$((COUNTER+1))
 		if [ ${COUNTER} = 10 ]; then
@@ -93,6 +107,9 @@ check_sql_native(){
 app_drupal_dl(){
     echo 'Download Drupal CMS'
     if [ ! -d "${VH_DOC_ROOT}/sites" ]; then
+	    if [ -d "${DEFAULT_VH_ROOT}/${1}/html/web" ]; then
+	        rm -rf "${DEFAULT_VH_ROOT}/${1}/html/web"
+		fi	
         /usr/bin/composer create-project --no-interaction drupal/recommended-project ${VH_DOC_ROOT}/ >/dev/null 2>&1
         cd ${VH_DOC_ROOT}/ && /usr/bin/composer require drush/drush -q
     else
@@ -117,9 +134,12 @@ cache_plugin_dl(){
 install_drupal(){
 	echo 'Install Drupal'
 	export COMPOSER_ALLOW_SUPERUSER=1
-    cd ${VH_DOC_ROOT}
+    cd "${VH_DOC_ROOT}" || exit 1
+    if [ ! -f "composer.json" ]; then
+        composer create-project drupal/recommended-project .
+    fi	
 	#/usr/bin/drush -y site-install standard \
-	    ./vendor/bin/drush -y site-install standard \
+	./vendor/bin/drush -y site-install standard \
 	    "--db-url=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_HOST}/${MYSQL_DATABASE}" \
 		"--account-name=${DRUPAL_USERNAME}" \
 		"--account-pass=${DRUPAL_PASSWORD}" \
@@ -177,9 +197,11 @@ while [ ! -z "${1}" ]; do
 			;;
 		-[dD] | -domain | --domain) shift
 			check_input "${1}"
+			validate_domain "${1}"
 			DOMAIN="${1}"
 			;;
 		-vhname | --vhname) shift
+		    validate_vhname "${1}"
 			VHNAME="${1}"
 			;;	       
 		*) 

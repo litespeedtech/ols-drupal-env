@@ -45,12 +45,10 @@ services:
       - default
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:${PHPMYADMIN_VERSION}
-    env_file:
-      - .env
-    ports:
-      - 8080:80
+    #ports:
+      #- 8080:80
     environment:
-      PMA_HOST: mysql
+        PMA_HOST: mysql
     restart: always
     networks:
       - default
